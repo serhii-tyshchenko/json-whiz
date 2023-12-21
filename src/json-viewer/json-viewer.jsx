@@ -1,18 +1,35 @@
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-import { isObject, isArray } from 'lodash';
+import { isObject, isArray, isNumber, isBoolean } from 'lodash';
 
-import { checkIfParent, getConfig, getItemsCountText, generateId } from './JsonViewer.utils';
+import { checkIfParent, getConfig, getItemsCountText, generateId, getStartSymbol, getEndSymbol } from './utils';
 
-import {
-  renderActions,
-  renderSingleValue,
-  renderStartSymbol,
-  renderEndSymbol,
-} from './JsonViewer.handlers';
+import classes from './styles.module.css';
 
-import classes from './JsonViewer.module.css';
+const renderSingleValue = (value) => {
+  const spanClasses = classNames(classes.value, {
+    [`${classes.boolean}`]: isBoolean(value),
+    [`${classes.number}`]: isNumber(value),
+  });
+  return (<span className={spanClasses}>{value.toString()}</span>
+  )
+};
+
+const renderActions = (config, value, path) =>
+  config?.actions ? <div className={classes.controls}>{config.actions(value, path)}</div> : null;
+
+const renderStartSymbol = (value, isParent) => (
+  <span className={classNames(classes.startSymbol, { [`${classes.parent}`]: isParent })}>
+    {getStartSymbol(value)}
+  </span>
+);
+
+const renderEndSymbol = (value, isParent) => (
+  <span className={classNames(classes.endSymbol, { [`${classes.parent}`]: isParent })}>
+    {getEndSymbol(value)}
+  </span>
+);
 
 const JsonViewer = (props) => {
   const renderValue = (value, level, path = '') => {
